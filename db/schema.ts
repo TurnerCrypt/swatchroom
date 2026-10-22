@@ -1,4 +1,6 @@
-// Intentionally empty by default.
-// Add Drizzle tables here when the site actually needs a database.
-// See examples/d1/db/schema.ts for an opt-in example.
-export {};
+import {sqliteTable,text,integer,index} from 'drizzle-orm/sqlite-core';
+export const previewRequests=sqliteTable('preview_requests',{
+ id:text('id').primaryKey(),
+ client:text('client').notNull(),
+ createdAt:integer('created_at').notNull()
+},table=>[index('preview_client_time').on(table.client,table.createdAt),index('preview_time').on(table.createdAt)]);

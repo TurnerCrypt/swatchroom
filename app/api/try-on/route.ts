@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { reservePreview, PreviewLimit } from '../../preview-budget';
 import { shades, designs, samplePhoto } from '../../catalog';
 import { designAssets, pressOnAssets } from '../../design-assets';
 import { fingers, nailShapes, validateCustom, CustomSet } from '../../custom-set';
@@ -24,6 +25,8 @@ export async function POST(req:Request){
  if(Number(req.headers.get('content-length')||0)>11*1024*1024)return json({error:'Please use an image smaller than 10 MB.'},413);
  try{const form=await req.formData();const mode=form.get('mode')||'colour';if(!['design','colour','custom'].includes(String(mode)))return json({error:'Please choose a valid nail collection.'},400);const design=designs.find(d=>d.id===form.get('design'));const index=Number(form.get('shade'));const finish=form.get('finish');if(mode!=='custom'&&(mode==='design'?!design:!form.has('shade')||!Number.isInteger(index)||!shades[index]||!['cream','matte'].includes(String(finish))))return json({error:mode==='design'?'Please choose a design from the library.':'Please choose a valid shade and finish.'},400);
  let custom:CustomSet|undefined;if(mode==='custom'){try{custom=validateCustom(JSON.parse(String(form.get('custom'))),designs.map(d=>d.id));}catch{return json({error:'Please choose valid styles, shape and length for your custom set.'},400);}}
+ const candidate=form.get('photo');if(candidate instanceof File){if(form.get('consent')!=='true'||!['image/jpeg','image/png'].includes(candidate.type)||candidate.size===0||candidate.size>10*1024*1024)return json({error:'Please allow processing and choose a JPG or PNG smaller than 10 MB.'},400);const sig=new Uint8Array(await candidate.slice(0,4).arrayBuffer());if(!(candidate.type==='image/jpeg'?sig[0]===255&&sig[1]===216:sig[0]===137&&sig[1]===80&&sig[2]===78&&sig[3]===71))return json({error:'This file is not a valid JPG or PNG.'},400);}
+ await reservePreview(req);
  let source:Record<string,string>={src_file_url:samplePhoto};const photo=form.get('photo');
  if(photo instanceof File){if(form.get('consent')!=='true')return json({error:'Please allow YouCam to process your photo first.'},400);if(!['image/jpeg','image/png'].includes(photo.type)||photo.size===0||photo.size>10*1024*1024)return json({error:'Choose a JPG or PNG smaller than 10 MB.'},400);
  const bytes=await photo.arrayBuffer();const sig=new Uint8Array(bytes);if(!(photo.type==='image/jpeg'?sig[0]===255&&sig[1]===216:sig[0]===137&&sig[1]===80&&sig[2]===78&&sig[3]===71))return json({error:'This file is not a valid JPG or PNG.'},400);
@@ -43,5 +46,5 @@ export async function POST(req:Request){
  });
  const data=await api('/s2s/v2.0/task/nail-vto','POST',{version:'1.0',...source,effect_type:extensions?'press_on_nails':'nail_polish',ref_file_ids:referenceIds,effects});
  if(!data.task_id)throw new Error('YouCam did not return a preview reference.');return json({token:await token(data.task_id)});
- }catch(e){return json({error:e instanceof Error?e.message:'Could not start the preview.'},502);}
+ }catch(e){return json({error:e instanceof Error?e.message:'Could not start the preview.'},e instanceof PreviewLimit?e.status:502);}
 }

@@ -7,6 +7,8 @@ if errorlevel 1 goto failed
 echo Running mocked API checks. No live units used.
 node scripts\test-api.mjs
 if errorlevel 1 goto failed
+node scripts\test-budget.mjs
+if errorlevel 1 goto failed
 echo Building the production application...
 call npm run build
 if errorlevel 1 goto failed

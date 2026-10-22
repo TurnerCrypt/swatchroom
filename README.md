@@ -31,7 +31,7 @@ Uploads require consent and are re-encoded in the browser to strip metadata and 
 
 ## Hosting status
 
-The existing Sites project is owner-private and has no deployed version. Site identity is preserved in `.openai/hosting.json`. Production build/publishing from this Codex environment is blocked by Windows child-process permissions (`spawn EPERM`). A normal CMD release check is provided. Do not expose the funded proxy publicly until durable budgets, abuse controls and judge access are configured. Never describe an expected hostname as a live deployment.
+The existing Sites project is owner-private and has no deployed version. Site identity is preserved in `.openai/hosting.json`. Production build/publishing from this Codex environment is blocked by Windows child-process permissions (`spawn EPERM`). A normal CMD release check is provided. Hosted preview reservations now use D1: maximum 20 requests in total, 10 globally per UTC day, 3 per hashed visitor per UTC day, and a 60-second cooldown. These cap submitted requests, not provider units. Failed provider attempts also consume a reservation. The endpoint fails closed when D1 is unavailable. Localhost retains the existing local testing flow. No raw identity/IP is stored: a keyed hash identifies a visitor. Apply the included migration during deployment and verify trusted platform identity headers and judge access before public release. The lifetime limit requires deliberate owner adjustment; it does not refill automatically. Never describe an expected hostname as a live deployment.
 
 ## Licences and attribution
 

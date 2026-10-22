@@ -1,0 +1,65 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "fb7acb19-61de-48df-bce7-3bde5479360e",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "preview_requests": {
+      "name": "preview_requests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client": {
+          "name": "client",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "preview_client_time": {
+          "name": "preview_client_time",
+          "columns": [
+            "client",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "preview_time": {
+          "name": "preview_time",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

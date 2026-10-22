@@ -1,0 +1,7 @@
+import fs from 'node:fs/promises';import path from 'node:path';import {gzipSync} from 'node:zlib';
+const config=JSON.parse(await fs.readFile('dist/server/wrangler.json','utf8'));if(config.assets?.binding!=='ASSETS')throw Error('Missing ASSETS binding in production build.');
+const secretFile=await fs.readFile('.dev.vars','utf8').catch(()=>''),secret=secretFile.match(/^YOUCAM_API_KEY\s*=\s*(.+)$/m)?.[1]?.trim().replace(/^['"]|['"]$/g,'');let compressed=0,files=0;
+async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const p=path.join(dir,entry.name);if(entry.isDirectory())await scan(p);else{files++;const bytes=await fs.readFile(p);if(secret&&bytes.includes(Buffer.from(secret)))throw Error('A server secret was copied into production output.');if(['.dev.vars','Gouttes.ttf'].includes(entry.name))throw Error('Unexpected private asset in build output.');if(p.startsWith(path.join('dist','server'))&&/\.m?js$/.test(p))compressed+=gzipSync(bytes).length;}}}
+await scan('dist');if(compressed>8*1024*1024)throw Error('Server bundle exceeds the 8 MB release target.');
+for(const suffix of ['.png','-extension.png','-thumb.png'])await fs.access('dist/client/designs/edit-19-4'+suffix);
+console.log(`Release artifact check passed: ${files} files, ${(compressed/1048576).toFixed(2)} MB compressed server JavaScript, asset binding present, no local key copied.`);

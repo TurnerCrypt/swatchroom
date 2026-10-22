@@ -1,0 +1,26 @@
+"use client";
+import {useState} from 'react';
+import {designs} from './catalog';
+import {CustomSet,NailStyle,fingers,nailShapes,materials,customBrief} from './custom-set';
+
+export default function CustomEditor({value,onChange,disabled}:{value:CustomSet;onChange:(v:CustomSet)=>void;disabled:boolean}){
+ const [active,setActive]=useState(0),[hex,setHex]=useState(value.fingers[0].color),[note,setNote]=useState('');const current=value.fingers[active];const shape=nailShapes.find(s=>s.id===value.shape)!;
+ function update(patch:Partial<NailStyle>){onChange({...value,fingers:value.fingers.map((n,i)=>i===active?{...n,...patch}:n)});setNote('');}
+ function select(i:number){setActive(i);setHex(value.fingers[i].color);}
+ function download(){const url=URL.createObjectURL(new Blob([customBrief(value)],{type:'text/plain'}));const a=document.createElement('a');a.href=url;a.download='swatchroom-my-nail-set.txt';a.click();URL.revokeObjectURL(url);setNote('Your salon brief has been downloaded.');}
+ return <fieldset className="custom-editor" disabled={disabled}><legend className="sr-only">Create your own nail set</legend>
+ <p className="custom-lead">Make every finger your own.</p><div className="finger-picker">{fingers.map((f,i)=><button type="button" key={f} aria-pressed={active===i} onClick={()=>select(i)}><span className={`mini-nail nail-${value.shape}`} style={{background:value.fingers[i].design?'transparent':value.fingers[i].color}}>{value.fingers[i].design&&<img src={`/designs/${value.fingers[i].design}-fill.svg?v=2`} alt=""/>}</span><small>{f}</small></button>)}</div>
+ <div className="custom-row"><label>Custom colour<input aria-label="Custom nail colour" type="color" value={current.color} onChange={e=>{setHex(e.target.value);update({color:e.target.value,design:null});}}/></label><label>Hex code<input aria-label="Custom colour hex code" className="hex-input" value={hex} maxLength={7} onChange={e=>{const h=e.target.value;setHex(h);if(/^#[0-9a-f]{6}$/i.test(h))update({color:h,design:null});}} onBlur={()=>setHex(current.color)}/></label></div>
+ <label className="custom-field">Art for {fingers[active]}<select value={current.design||''} onChange={e=>update({design:e.target.value||null,texture:current.texture==='metallic'&&e.target.value?'cream':current.texture})}><option value="">My custom colour</option>{designs.map(d=><option value={d.id} key={d.id}>{d.name} — {d.tag}</option>)}</select></label>
+ <label className="custom-field">Finish<select value={current.texture} onChange={e=>update({texture:e.target.value as NailStyle['texture']})}><option value="cream">Glossy cream</option><option value="matte">Soft matte</option><option value="metallic" disabled={!!current.design}>Metallic (custom colours)</option></select></label>
+ <button type="button" className="apply-all" onClick={()=>{onChange({...value,fingers:value.fingers.map(()=>({...current}))});setNote('This finger’s colour, art and finish applied to all five nails.');}}>Apply this style to all five fingers ↗</button>
+ <div className="custom-divider">SHAPE YOUR SET</div><div className="shape-picker">{nailShapes.map(s=><button type="button" key={s.id} aria-pressed={value.shape===s.id} onClick={()=>onChange({...value,shape:s.id})}><span className={`shape-icon nail-${s.id}`}/><span>{s.label}</span>{['coffin','round'].includes(s.id)&&<small>Brief only</small>}</button>)}</div><p className="shape-help">{shape.description}</p>
+ <label className="custom-field" htmlFor="extension-length">Extension length <output>{value.length.toFixed(2)}×</output></label>
+ {!shape.api&&<p className="length-notice" id="length-help">Choose Square, Squoval, Oval, Almond or Stiletto above to adjust extension length. “{shape.label}” keeps the length in your photo.</p>}
+ <div className="length-controls"><button type="button" aria-label="Decrease extension length" disabled={!shape.api||disabled||value.length<=.8} onClick={()=>onChange({...value,length:Math.max(.8,Math.round((value.length-.05)*100)/100)})}>−</button><input id="extension-length" aria-label="Extension length" aria-describedby="length-help length-preview-help" type="range" min="0.8" max="2.15" step="0.05" value={value.length} disabled={!shape.api||disabled} onChange={e=>onChange({...value,length:Number(e.target.value)})}/><button type="button" aria-label="Increase extension length" disabled={!shape.api||disabled||value.length>=2.15} onClick={()=>onChange({...value,length:Math.min(2.15,Math.round((value.length+.05)*100)/100)})}>+</button></div>
+ <p className="custom-help" id="length-preview-help">Relative visual length, not millimetres. Thumb extensions use a shorter proportion. Shape and length apply to custom-colour nails. Patterned nails use the reference outline. Click “Try it on my hand” to generate the updated photo.</p>
+ <label className="custom-field">Salon preference<select value={value.material} onChange={e=>onChange({...value,material:e.target.value})}>{materials.map(m=><option key={m}>{m}</option>)}</select></label><p className="custom-help">Acrylic, gel and other materials are saved in your brief. The image previews the look, not material or wear performance.</p>
+ <button type="button" className="apply-all" onClick={download}>Download my salon brief ↓</button><p role="status" className="custom-help">{note}</p>
+ </fieldset>;
+}
+

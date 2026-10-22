@@ -1,0 +1,30 @@
+name: Release checks
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node node_modules/typescript/bin/tsc --noEmit
+      - run: node scripts/test-api.mjs
+      - run: npm run build
+      - run: node scripts/check-release-output.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-production-build
+          path: dist/
+          include-hidden-files: true
+          retention-days: 7

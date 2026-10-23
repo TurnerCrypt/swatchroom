@@ -27,14 +27,19 @@ Uploads require consent and are re-encoded in the browser to strip metadata and 
 
 ## Validation
 
-`node node_modules/typescript/bin/tsc --noEmit` and `node scripts/test-api.mjs` check types and mocked validation/upload/task/polling paths without consuming live units. Six agent-run live sample tasks were previously recorded as successful; the exact unit debit was not independently measured. More personal-photo coverage remains to be validated with consent.
+`node node_modules/typescript/bin/tsc --noEmit` and `node scripts/test-api.mjs` check types and mocked validation/upload/task/polling paths without consuming live units. Seven agent-run live sample tasks were recorded as successful, including a hosted Cocoa Tartan preview; the exact unit debit was not independently measured. More personal-photo coverage remains to be validated with consent.
 
 ## Hosting status
 
-The existing Sites project is owner-private and has no deployed version. Site identity is preserved in `.openai/hosting.json`. Production build/publishing from this Codex environment is blocked by Windows child-process permissions (`spawn EPERM`). A normal CMD release check is provided. Hosted preview reservations now use D1: maximum 20 requests in total, 10 globally per UTC day, 3 per hashed visitor per UTC day, and a 60-second cooldown. These cap submitted requests, not provider units. Failed provider attempts also consume a reservation. The endpoint fails closed when D1 is unavailable. Localhost retains the existing local testing flow. No raw identity/IP is stored: a keyed hash identifies a visitor. Apply the included migration during deployment and verify trusted platform identity headers and judge access before public release. The lifetime limit requires deliberate owner adjustment; it does not refill automatically. Never describe an expected hostname as a live deployment.
+The public app is deployed on Cloudflare Workers at https://swatchroom.swatchroom-studio.workers.dev/ . The app loaded in a fresh browser tab on 23 October 2026. The hosted YouCam sample preview and saved-image persistence across refresh were verified earlier that day before the account subdomain rename. No login is required to explore the studio.
+
+The direct Cloudflare deployment uses the DB and ASSETS bindings, with the included database migration applied and the API key stored as a server secret. Build with `SWATCHROOM_DEPLOY_TARGET=cloudflare npm run build` and deploy using `npx wrangler deploy --config dist/server/wrangler.json`. GitHub Actions release checks and Cloudflare production builds passed. The separate original Sites project remains owner-private and undeployed; its identity is preserved in `.openai/hosting.json` and is distinct from this working public deployment.
+
+Hosted preview reservations use D1: maximum 20 requests in total, 10 globally per UTC day, 3 per hashed visitor per UTC day, and a 60-second cooldown. These cap submitted requests, not provider units. Failed provider attempts also consume a reservation. The endpoint fails closed when D1 is unavailable. Localhost retains the existing local testing flow. No raw identity/IP is stored: a keyed hash identifies a visitor. The lifetime limit requires deliberate owner adjustment; it does not refill automatically. Keep judge access available throughout the judging period and check the remaining provider budget.
 
 ## Licences and attribution
 
 Original source and generated artwork: MIT, see LICENSE. Fraunces by The Fraunces Project Authors: SIL Open Font License 1.1, included in `public/fonts/Fraunces-OFL.txt`. Gouttes has been removed from publishable files because its public-use rights were not established. Third-party dependencies retain their licences; sample media and YouCam output are subject to provider terms. The campaign image is AI-generated original artwork.
 
 API documentation: https://docs.perfectcorp.com/reference/ai_nail_vto
+

@@ -14,10 +14,11 @@ export async function reservePreview(req:Request){
  const client=Array.from(new Uint8Array(signature),b=>b.toString(16).padStart(2,'0')).join('');
  const now=Date.now(),day=now-now%86400000;
  const row=await db.prepare(`INSERT INTO preview_requests (id,client,created_at)
- SELECT ?,?,? WHERE (SELECT COUNT(*) FROM preview_requests)<20
- AND (SELECT COUNT(*) FROM preview_requests WHERE created_at>=?)<10
- AND (SELECT COUNT(*) FROM preview_requests WHERE client=? AND created_at>=?)<3
+ SELECT ?,?,? WHERE (SELECT COUNT(*) FROM preview_requests)<200
+ AND (SELECT COUNT(*) FROM preview_requests WHERE created_at>=?)<50
+ AND (SELECT COUNT(*) FROM preview_requests WHERE client=? AND created_at>=?)<10
  AND NOT EXISTS(SELECT 1 FROM preview_requests WHERE client=? AND created_at>?)
  RETURNING id`).bind(crypto.randomUUID(),client,now,day,client,day,client,now-60000).first();
- if(!row)throw new PreviewLimit('Demo preview limit reached. Wait at least one minute between previews; each visitor has three per UTC day. Saved looks remain available.',429);
+ if(!row)throw new PreviewLimit('Demo preview limit reached. Wait at least one minute between previews; each visitor has ten per UTC day. Saved looks remain available.',429);
 }
+

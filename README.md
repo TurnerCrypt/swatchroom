@@ -35,11 +35,12 @@ The public app is deployed on Cloudflare Workers at https://swatchroom.swatchroo
 
 The direct Cloudflare deployment uses the DB and ASSETS bindings, with the included database migration applied and the API key stored as a server secret. Build with `SWATCHROOM_DEPLOY_TARGET=cloudflare npm run build` and deploy using `npx wrangler deploy --config dist/server/wrangler.json`. GitHub Actions release checks and Cloudflare production builds passed. The separate original Sites project remains owner-private and undeployed; its identity is preserved in `.openai/hosting.json` and is distinct from this working public deployment.
 
-Hosted preview reservations use D1: maximum 20 requests in total, 10 globally per UTC day, 3 per hashed visitor per UTC day, and a 60-second cooldown. These cap submitted requests, not provider units. Failed provider attempts also consume a reservation. The endpoint fails closed when D1 is unavailable. Localhost retains the existing local testing flow. No raw identity/IP is stored: a keyed hash identifies a visitor. The lifetime limit requires deliberate owner adjustment; it does not refill automatically. Keep judge access available throughout the judging period and check the remaining provider budget.
+Hosted preview reservations use D1: maximum 200 requests in total, 50 globally per UTC day, 10 per hashed visitor per UTC day, and a 60-second cooldown. These cap submitted requests, not provider units. Failed provider attempts also consume a reservation. The endpoint fails closed when D1 is unavailable. Localhost retains the existing local testing flow. No raw identity/IP is stored: a keyed hash identifies a visitor. The lifetime limit requires deliberate owner adjustment; it does not refill automatically. Keep judge access available throughout the judging period and check the remaining provider budget.
 
 ## Licences and attribution
 
 Original source and generated artwork: MIT, see LICENSE. Fraunces by The Fraunces Project Authors: SIL Open Font License 1.1, included in `public/fonts/Fraunces-OFL.txt`. Gouttes has been removed from publishable files because its public-use rights were not established. Third-party dependencies retain their licences; sample media and YouCam output are subject to provider terms. The campaign image is AI-generated original artwork.
 
 API documentation: https://docs.perfectcorp.com/reference/ai_nail_vto
+
 

@@ -17,7 +17,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
 
 const localBindingConfig = {
-  ...(directCloudflare ? {name:directConfig.name,account_id:directConfig.account_id,vars:{SWATCHROOM_DIRECT:"true"}} : {}),
+  ...(directCloudflare ? {name:directConfig.name,account_id:directConfig.account_id,workers_dev:true,preview_urls:false,vars:{SWATCHROOM_DIRECT:"true"}} : {}),
   assets: { binding: "ASSETS" },
   main: directCloudflare ? "./build/cloudflare-worker.ts" : "./build/sites-worker.ts",
   compatibility_flags: ["nodejs_compat"],

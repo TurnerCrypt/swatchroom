@@ -21,4 +21,3 @@ export async function reservePreview(req:Request){
  RETURNING id`).bind(crypto.randomUUID(),client,now,day,client,day,client,now-60000).first();
  if(!row)throw new PreviewLimit('Demo preview limit reached. Wait at least one minute between previews; each visitor has ten per UTC day. Saved looks remain available.',429);
 }
-

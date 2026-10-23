@@ -42,5 +42,3 @@ Hosted preview reservations use D1: maximum 200 requests in total, 50 globally p
 Original source and generated artwork: MIT, see LICENSE. Fraunces by The Fraunces Project Authors: SIL Open Font License 1.1, included in `public/fonts/Fraunces-OFL.txt`. Gouttes has been removed from publishable files because its public-use rights were not established. Third-party dependencies retain their licences; sample media and YouCam output are subject to provider terms. The campaign image is AI-generated original artwork.
 
 API documentation: https://docs.perfectcorp.com/reference/ai_nail_vto
-
-

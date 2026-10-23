@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 15
     env:
       WRANGLER_SEND_METRICS: 'false'
+      SWATCHROOM_DEPLOY_TARGET: cloudflare
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

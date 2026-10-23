@@ -1,6 +1,8 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
+import directConfig from "./cloudflare.deploy.json";
+const directCloudflare=process.env.SWATCHROOM_DEPLOY_TARGET === "cloudflare";
 import { readExecutionProfile } from "./scripts/execution-profile.mjs";
 import { sites } from "./build/sites-vite-plugin";
 import { connectorPreview } from "./build/connector-preview-plugin.mjs";
@@ -15,15 +17,16 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
 
 const localBindingConfig = {
+  ...(directCloudflare ? {name:directConfig.name,account_id:directConfig.account_id,vars:{SWATCHROOM_DIRECT:"true"}} : {}),
   assets: { binding: "ASSETS" },
-  main: "./build/sites-worker.ts",
+  main: directCloudflare ? "./build/cloudflare-worker.ts" : "./build/sites-worker.ts",
   compatibility_flags: ["nodejs_compat"],
   d1_databases: d1
     ? [
         {
           binding: d1,
-          database_name: "site-creator-d1",
-          database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+          database_name: directCloudflare ? directConfig.database_name : "site-creator-d1",
+          database_id: directCloudflare ? directConfig.database_id : SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
         },
       ]
     : [],

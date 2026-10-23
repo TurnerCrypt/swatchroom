@@ -6,7 +6,7 @@ export async function reservePreview(req:Request){
  const db=(env as any).DB as D1Database|undefined;
  if(local)return; // Existing local workflow; the hosted endpoint always requires durable storage.
  if(!db)throw new PreviewLimit('Live previews are paused while demo limits are configured.',503);
- const identity=req.headers.get('oai-authenticated-user-id')||req.headers.get('cf-connecting-ip');
+ const identity=(env as any).SWATCHROOM_DIRECT==='true'?req.headers.get('cf-connecting-ip'):(req.headers.get('oai-authenticated-user-id')||req.headers.get('cf-connecting-ip'));
  if(!identity)throw new PreviewLimit('Could not identify this preview session. Please reopen the demo.',403);
  const secret=(env as any).YOUCAM_API_KEY||process.env.YOUCAM_API_KEY;
  const signing=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
